@@ -149,3 +149,6 @@ class NAC_Device(MediaPlayerEntity):
 
     async def async_volume_down(self):
         await self._send_broadlink_command("volume_down")
+
+    async def send_command(self, command):
+        await self._send_broadlink_command(command)
