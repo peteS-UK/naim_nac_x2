@@ -17,3 +17,9 @@ send_command:
             - mute
             - volume_up
             - volume_down
+            - one
+            - two
+            - three
+            - four
+            - five
+            - six

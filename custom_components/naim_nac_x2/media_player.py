@@ -24,10 +24,27 @@ COMMANDS = {
     "volume_up": "JgA0ABsfHB8bIDkeHB8cHxweHjo6HhwfHB8bAAujGx8cHxsfOR8cHxsfHB8cPDkfGyAcHh0ADQUAAAAA",
     "volume_down": "JgA0AB4fHh0eHTsdHR4eHR0eHjo3Ih0eHjocAAt2GyAdHh4cPB0dHh4dHh0eOjsdHxwfOhsADQUAAAAA",
     "mute": "JgAwABwfOT05HxwfHB8cHxwfHDwcHzk9HAALdhsgOjw5HxwfGyAbIBsgGz0cHzk9GwANBQAAAAAAAAAA",
+    "one": "JgA0ABwfHB4cHzkgHB8bHx0fGz05Hxw9OgALkhwfGyAbIDkfHB8cIBogHDw6Hxw8OQAMqQoADQUAAAAA",
+    "two": "JgAwABsgOjs5IBwfGyEbHxw8Oh4dPBohGwALdh0eOT06HhwfHB8cHxw8OSAcPBwfHAANBQAAAAAAAAAA",
+    "three": "JgAwABwgGyAaIDofGyAaIRogHDw4PjkgGgALlRwfGx8cIDchGyAbIBsfHTw5PTkfHAANBQAAAAAAAAAA",
+    "four": "JgAsABwgOTw5IBsgGx8dIBs8OT04PRwAC3YbIDo7OSAbIRogHCAaPTo8OT0bAA0FAAAAAAAAAAAAAAAA",
+    "five": "JgAwABsgHCAcHjkfGyAbIBsgGz05PRwfOQALkxwgHB4cIDggGx8cHx4dHD06OxwfOQANBQAAAAAAAAAA",
+    "six": "JgA0ABwfGyAcHzkfHR4cHxsgGz05PR4dHB8dAAt0HB8cHx0eOR8cHxwfHR4cPTk5Hx8cHx4ADQUAAAAA",
+}
+
+SOURCE_MAP = {
+    "one": "Phono",
+    "two": "CD",
+    "three": "Tuner",
+    "four": "Tape",
+    "five": "VCR",
+    "six": "AUX",
 }
 
 SUPPORT_NAC = (
-    MediaPlayerEntityFeature.VOLUME_STEP | MediaPlayerEntityFeature.VOLUME_MUTE
+    MediaPlayerEntityFeature.VOLUME_STEP
+    | MediaPlayerEntityFeature.VOLUME_MUTE
+    | MediaPlayerEntityFeature.SELECT_SOURCE
 )
 
 
@@ -56,7 +73,7 @@ async def async_setup_entry(
 
 
 class NAC_Device(MediaPlayerEntity):
-    # Representation of a Emotiva Processor
+    # Representation of a NAC
 
     def __init__(self, hass, name, broadlink_entity):
         self._hass = hass
@@ -69,6 +86,22 @@ class NAC_Device(MediaPlayerEntity):
         self._name = name
         self._broadlink_entity = broadlink_entity
         self._muted = False
+        self._source = None
+        self._sources = list(SOURCE_MAP.values())
+
+    async def async_select_source(self, source: str) -> None:
+        self._source = source
+        _cmd = [key for key, val in SOURCE_MAP.items() if val == source]
+        await self._send_broadlink_command(_cmd[0])
+        self.async_schedule_update_ha_state()
+
+    @property
+    def source_list(self):
+        return self._sources
+
+    @property
+    def source(self):
+        return self._source
 
     @property
     def should_poll(self):
