@@ -68,6 +68,7 @@ class NAC_Device(MediaPlayerEntity):
         self._device_class = "receiver"
         self._name = name
         self._broadlink_entity = broadlink_entity
+        self._muted = False
 
     @property
     def should_poll(self):
