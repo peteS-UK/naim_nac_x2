@@ -1,0 +1,14 @@
+{
+  "domain": "naim_nac_x2",
+  "name": "Naim NAC",
+  "codeowners": [
+    "@peteS-UK"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/peteS-UK/naim+nac_x2/blob/main/README.md",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/peteS-UK/naim_nac_x2/issues",
+  "requirements": [],
+  "version": "0.2"
+}
