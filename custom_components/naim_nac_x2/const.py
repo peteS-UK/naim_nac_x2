@@ -15,3 +15,9 @@ COMMANDS = {
 }
 MANUFACTURER = "Naim"
 MODEL = "NAC"
+CONF_INPUT1 = "input1"
+CONF_INPUT2 = "input2"
+CONF_INPUT3 = "input3"
+CONF_INPUT4 = "input4"
+CONF_INPUT5 = "input5"
+CONF_INPUT6 = "input6"

@@ -23,18 +23,15 @@ from .const import (
     COMMANDS,
     MANUFACTURER,
     MODEL,
+    CONF_INPUT1,
+    CONF_INPUT2,
+    CONF_INPUT3,
+    CONF_INPUT4,
+    CONF_INPUT5,
+    CONF_INPUT6,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-SOURCE_MAP = {
-    "one": "Phono",
-    "two": "CD",
-    "three": "Tuner",
-    "four": "Tape",
-    "five": "VCR",
-    "six": "AUX",
-}
 
 SUPPORT = (
     MediaPlayerEntityFeature.VOLUME_STEP
@@ -48,8 +45,23 @@ async def async_setup_entry(
     config_entry: config_entries.ConfigEntry,
     async_add_entities,
 ) -> None:
+    _source_map = {
+        "one": config_entry.data[CONF_INPUT1],
+        "two": config_entry.data[CONF_INPUT2],
+        "three": config_entry.data[CONF_INPUT3],
+        "four": config_entry.data[CONF_INPUT4],
+        "five": config_entry.data[CONF_INPUT5],
+        "six": config_entry.data[CONF_INPUT6],
+    }
     async_add_entities(
-        [Device(hass, config_entry.data[CONF_NAME], config_entry.data[CONF_BROADLINK])]
+        [
+            Device(
+                hass,
+                config_entry.data[CONF_NAME],
+                config_entry.data[CONF_BROADLINK],
+                _source_map,
+            )
+        ]
     )
 
     # Register entity services
@@ -66,7 +78,7 @@ async def async_setup_entry(
 class Device(MediaPlayerEntity):
     # Representation of a NAC
 
-    def __init__(self, hass, name, broadlink_entity):
+    def __init__(self, hass, name, broadlink_entity, source_map):
         self._hass = hass
         self._state = MediaPlayerState.IDLE
         self._entity_id = f"media_player.{DOMAIN}"
@@ -77,12 +89,13 @@ class Device(MediaPlayerEntity):
         self._name = name
         self._broadlink_entity = broadlink_entity
         self._muted = False
+        self._source_map = source_map
         self._source = None
-        self._sources = list(SOURCE_MAP.values())
+        self._sources = list(self._source_map.values())
 
     async def async_select_source(self, source: str) -> None:
         self._source = source
-        _cmd = [key for key, val in SOURCE_MAP.items() if val == source]
+        _cmd = [key for key, val in self._source_map.items() if val == source]
         await self._send_broadlink_command(_cmd[0])
         self.async_schedule_update_ha_state()
 
