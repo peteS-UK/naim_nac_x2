@@ -16,32 +16,24 @@ from homeassistant.helpers import (
 )
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import DOMAIN, SERVICE_SEND_COMMAND, CONF_BROADLINK
+from .const import (
+    DOMAIN,
+    SERVICE_SEND_COMMAND,
+    CONF_BROADLINK,
+    COMMANDS,
+    MANUFACTURER,
+    MODEL,
+    CONF_INPUT1,
+    CONF_INPUT2,
+    CONF_INPUT3,
+    CONF_INPUT4,
+    CONF_INPUT5,
+    CONF_INPUT6,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
-COMMANDS = {
-    "volume_up": "JgA0ABsfHB8bIDkeHB8cHxweHjo6HhwfHB8bAAujGx8cHxsfOR8cHxsfHB8cPDkfGyAcHh0ADQUAAAAA",
-    "volume_down": "JgA0AB4fHh0eHTsdHR4eHR0eHjo3Ih0eHjocAAt2GyAdHh4cPB0dHh4dHh0eOjsdHxwfOhsADQUAAAAA",
-    "mute": "JgAwABwfOT05HxwfHB8cHxwfHDwcHzk9HAALdhsgOjw5HxwfGyAbIBsgGz0cHzk9GwANBQAAAAAAAAAA",
-    "one": "JgA0ABwfHB4cHzkgHB8bHx0fGz05Hxw9OgALkhwfGyAbIDkfHB8cIBogHDw6Hxw8OQAMqQoADQUAAAAA",
-    "two": "JgAwABsgOjs5IBwfGyEbHxw8Oh4dPBohGwALdh0eOT06HhwfHB8cHxw8OSAcPBwfHAANBQAAAAAAAAAA",
-    "three": "JgAwABwgGyAaIDofGyAaIRogHDw4PjkgGgALlRwfGx8cIDchGyAbIBsfHTw5PTkfHAANBQAAAAAAAAAA",
-    "four": "JgAsABwgOTw5IBsgGx8dIBs8OT04PRwAC3YbIDo7OSAbIRogHCAaPTo8OT0bAA0FAAAAAAAAAAAAAAAA",
-    "five": "JgAwABsgHCAcHjkfGyAbIBsgGz05PRwfOQALkxwgHB4cIDggGx8cHx4dHD06OxwfOQANBQAAAAAAAAAA",
-    "six": "JgA0ABwfGyAcHzkfHR4cHxsgGz05PR4dHB8dAAt0HB8cHx0eOR8cHxwfHR4cPTk5Hx8cHx4ADQUAAAAA",
-}
-
-SOURCE_MAP = {
-    "one": "Phono",
-    "two": "CD",
-    "three": "Tuner",
-    "four": "Tape",
-    "five": "VCR",
-    "six": "AUX",
-}
-
-SUPPORT_NAC = (
+SUPPORT = (
     MediaPlayerEntityFeature.VOLUME_STEP
     | MediaPlayerEntityFeature.VOLUME_MUTE
     | MediaPlayerEntityFeature.SELECT_SOURCE
@@ -53,10 +45,21 @@ async def async_setup_entry(
     config_entry: config_entries.ConfigEntry,
     async_add_entities,
 ) -> None:
+    _source_map = {
+        "one": config_entry.data[CONF_INPUT1],
+        "two": config_entry.data[CONF_INPUT2],
+        "three": config_entry.data[CONF_INPUT3],
+        "four": config_entry.data[CONF_INPUT4],
+        "five": config_entry.data[CONF_INPUT5],
+        "six": config_entry.data[CONF_INPUT6],
+    }
     async_add_entities(
         [
-            NAC_Device(
-                hass, config_entry.data[CONF_NAME], config_entry.data[CONF_BROADLINK]
+            Device(
+                hass,
+                config_entry.data[CONF_NAME],
+                config_entry.data[CONF_BROADLINK],
+                _source_map,
             )
         ]
     )
@@ -68,30 +71,31 @@ async def async_setup_entry(
         {
             vol.Required("command"): cv.string,
         },
-        NAC_Device.send_command.__name__,
+        Device.send_command.__name__,
     )
 
 
-class NAC_Device(MediaPlayerEntity):
+class Device(MediaPlayerEntity):
     # Representation of a NAC
 
-    def __init__(self, hass, name, broadlink_entity):
+    def __init__(self, hass, name, broadlink_entity, source_map):
         self._hass = hass
         self._state = MediaPlayerState.IDLE
-        self._entity_id = "media_player.naim_nac"
-        self._unique_id = "naim_nac_" + name.replace(" ", "_").replace(
+        self._entity_id = f"media_player.{DOMAIN}"
+        self._unique_id = f"{DOMAIN}_" + name.replace(" ", "_").replace(
             "-", "_"
         ).replace(":", "_")
         self._device_class = "receiver"
         self._name = name
         self._broadlink_entity = broadlink_entity
         self._muted = False
+        self._source_map = source_map
         self._source = None
-        self._sources = list(SOURCE_MAP.values())
+        self._sources = list(self._source_map.values())
 
     async def async_select_source(self, source: str) -> None:
         self._source = source
-        _cmd = [key for key, val in SOURCE_MAP.items() if val == source]
+        _cmd = [key for key, val in self._source_map.items() if val == source]
         await self._send_broadlink_command(_cmd[0])
         self.async_schedule_update_ha_state()
 
@@ -133,8 +137,8 @@ class NAC_Device(MediaPlayerEntity):
                 (DOMAIN, self._unique_id)
             },
             name=self._name,
-            manufacturer="Naim",
-            model="NAC",
+            manufacturer=MANUFACTURER,
+            model=MODEL,
         )
 
     @property
@@ -155,7 +159,7 @@ class NAC_Device(MediaPlayerEntity):
 
     @property
     def supported_features(self) -> MediaPlayerEntityFeature:
-        return SUPPORT_NAC
+        return SUPPORT
 
     async def _send_broadlink_command(self, command):
         await self._hass.services.async_call(

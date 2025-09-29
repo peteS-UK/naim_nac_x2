@@ -2,3 +2,22 @@ DOMAIN = "naim_nac_x2"
 DEFAULT_NAME = "Naim NAC"
 SERVICE_SEND_COMMAND = "send_command"
 CONF_BROADLINK = "broadlink_entity"
+COMMANDS = {
+    "volume_up": "JgA0ABsfHB8bIDkeHB8cHxweHjo6HhwfHB8bAAujGx8cHxsfOR8cHxsfHB8cPDkfGyAcHh0ADQUAAAAA",
+    "volume_down": "JgA0AB4fHh0eHTsdHR4eHR0eHjo3Ih0eHjocAAt2GyAdHh4cPB0dHh4dHh0eOjsdHxwfOhsADQUAAAAA",
+    "mute": "JgAwABwfOT05HxwfHB8cHxwfHDwcHzk9HAALdhsgOjw5HxwfGyAbIBsgGz0cHzk9GwANBQAAAAAAAAAA",
+    "one": "JgA0ABwfHB4cHzkgHB8bHx0fGz05Hxw9OgALkhwfGyAbIDkfHB8cIBogHDw6Hxw8OQAMqQoADQUAAAAA",
+    "two": "JgAwABsgOjs5IBwfGyEbHxw8Oh4dPBohGwALdh0eOT06HhwfHB8cHxw8OSAcPBwfHAANBQAAAAAAAAAA",
+    "three": "JgAwABwgGyAaIDofGyAaIRogHDw4PjkgGgALlRwfGx8cIDchGyAbIBsfHTw5PTkfHAANBQAAAAAAAAAA",
+    "four": "JgAsABwgOTw5IBsgGx8dIBs8OT04PRwAC3YbIDo7OSAbIRogHCAaPTo8OT0bAA0FAAAAAAAAAAAAAAAA",
+    "five": "JgAwABsgHCAcHjkfGyAbIBsgGz05PRwfOQALkxwgHB4cIDggGx8cHx4dHD06OxwfOQANBQAAAAAAAAAA",
+    "six": "JgA0ABwfGyAcHzkfHR4cHxsgGz05PR4dHB8dAAt0HB8cHx0eOR8cHxwfHR4cPTk5Hx8cHx4ADQUAAAAA",
+}
+MANUFACTURER = "Naim"
+MODEL = "NAC"
+CONF_INPUT1 = "input1"
+CONF_INPUT2 = "input2"
+CONF_INPUT3 = "input3"
+CONF_INPUT4 = "input4"
+CONF_INPUT5 = "input5"
+CONF_INPUT6 = "input6"
