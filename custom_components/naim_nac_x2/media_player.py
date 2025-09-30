@@ -19,8 +19,8 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from .const import (
     DOMAIN,
     SERVICE_SEND_COMMAND,
-    CONF_BROADLINK,
-    COMMANDS,
+    CONF_REMOTE_ENTITY,
+    BROADLINK_COMMANDS,
     MANUFACTURER,
     MODEL,
     CONF_INPUT1,
@@ -29,6 +29,8 @@ from .const import (
     CONF_INPUT4,
     CONF_INPUT5,
     CONF_INPUT6,
+    CONF_REMOTE_TYPE,
+    TUYA_COMMANDS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -58,7 +60,8 @@ async def async_setup_entry(
             Device(
                 hass,
                 config_entry.data[CONF_NAME],
-                config_entry.data[CONF_BROADLINK],
+                config_entry.data[CONF_REMOTE_ENTITY],
+                config_entry.data[CONF_REMOTE_TYPE],
                 _source_map,
             )
         ]
@@ -78,7 +81,7 @@ async def async_setup_entry(
 class Device(MediaPlayerEntity):
     # Representation of a NAC
 
-    def __init__(self, hass, name, broadlink_entity, source_map):
+    def __init__(self, hass, name, remote_entity, remote_type, source_map):
         self._hass = hass
         self._state = MediaPlayerState.IDLE
         self._entity_id = f"media_player.{DOMAIN}"
@@ -87,8 +90,8 @@ class Device(MediaPlayerEntity):
         ).replace(":", "_")
         self._device_class = "receiver"
         self._name = name
-        self._broadlink_entity = broadlink_entity
-        self._muted = False
+        self._remote_entity = remote_entity
+        self._remote_type = remote_type
         self._source_map = source_map
         self._source = None
         self._sources = list(self._source_map.values())
@@ -96,7 +99,7 @@ class Device(MediaPlayerEntity):
     async def async_select_source(self, source: str) -> None:
         self._source = source
         _cmd = [key for key, val in self._source_map.items() if val == source]
-        await self._send_broadlink_command(_cmd[0])
+        await self._send_remote_command(_cmd[0])
         self.async_schedule_update_ha_state()
 
     @property
@@ -121,7 +124,6 @@ class Device(MediaPlayerEntity):
 
     @property
     def name(self):
-        # return self._device.name
         return None
 
     @property
@@ -161,32 +163,54 @@ class Device(MediaPlayerEntity):
     def supported_features(self) -> MediaPlayerEntityFeature:
         return SUPPORT
 
-    async def _send_broadlink_command(self, command):
-        await self._hass.services.async_call(
-            "remote",
-            "send_command",
-            {
-                "entity_id": self._broadlink_entity,
-                "num_repeats": "1",
-                "delay_secs": "0.4",
-                "command": f"b64:{COMMANDS[command]}",
-            },
-        )
+    async def _send_remote_command(self, command):
+        if self._remote_type == "Tuya RC5":
+            await self.hass.services.async_call(
+                "remote",
+                "send_command",
+                {
+                    "entity_id": self._remote_entity,
+                    "num_repeats": "1",
+                    "delay_secs": "0.4",
+                    "command": f"{TUYA_COMMANDS[command]['rc5']}",
+                },
+            )
+        if self._remote_type == "Tuya Raw":
+            await self.hass.services.async_call(
+                "remote",
+                "send_command",
+                {
+                    "entity_id": self._remote_entity,
+                    "num_repeats": "1",
+                    "delay_secs": "0.4",
+                    "command": f"{TUYA_COMMANDS[command]['raw']}",
+                },
+            )
+
+        if self._remote_type == "Broadlink":
+            await self.hass.services.async_call(
+                "remote",
+                "send_command",
+                {
+                    "entity_id": self._remote_entity,
+                    "num_repeats": "1",
+                    "delay_secs": "0.4",
+                    "command": f"b64:{BROADLINK_COMMANDS[command]}",
+                },
+            )
 
     @property
     def is_volume_muted(self):
-        return self._muted
+        return False
 
     async def async_mute_volume(self, mute: bool) -> None:
-        await self._send_broadlink_command("mute")
-        self._muted = not self._muted
-        self.async_schedule_update_ha_state()
+        await self._send_remote_command("mute")
 
     async def async_volume_up(self):
-        await self._send_broadlink_command("volume_up")
+        await self._send_remote_command("vol+")
 
     async def async_volume_down(self):
-        await self._send_broadlink_command("volume_down")
+        await self._send_remote_command("vol-")
 
     async def send_command(self, command):
-        await self._send_broadlink_command(command)
+        await self._send_remote_command(command)
