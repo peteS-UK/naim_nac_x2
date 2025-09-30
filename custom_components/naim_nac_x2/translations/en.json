@@ -9,7 +9,8 @@
       "user": {
         "data": {
           "name": "Name of the Naim NAC Pre-amp",
-          "broadlink_entity": "Select the Broadlink remote",
+          "remote_entity": "Select the Remote entity",
+          "remote_type": "What type of IR blaster",
           "input1": "Input 1",
           "input2": "Input 2",
           "input3": "Input 3",

@@ -6,13 +6,14 @@ import voluptuous as vol
 
 from .const import (
     DOMAIN,
-    CONF_BROADLINK,
+    CONF_REMOTE_ENTITY,
     CONF_INPUT1,
     CONF_INPUT2,
     CONF_INPUT3,
     CONF_INPUT4,
     CONF_INPUT5,
     CONF_INPUT6,
+    CONF_REMOTE_TYPE,
 )
 
 from homeassistant.helpers.selector import (
@@ -32,10 +33,14 @@ _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
-        vol.Required(CONF_BROADLINK): EntitySelector(
-            EntitySelectorConfig(
-                filter={"integration": "broadlink", "domain": "remote"}
+        vol.Required(CONF_REMOTE_TYPE): SelectSelector(
+            SelectSelectorConfig(
+                mode=SelectSelectorMode.DROPDOWN,
+                options=["Broadlink", "Tuya RC5", "Tuya Raw"],
             )
+        ),
+        vol.Required(CONF_REMOTE_ENTITY): EntitySelector(
+            EntitySelectorConfig(filter={"domain": "remote"})
         ),
         vol.Required(CONF_INPUT1, default="Phono"): SelectSelector(
             SelectSelectorConfig(
