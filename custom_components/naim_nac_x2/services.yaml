@@ -17,6 +17,8 @@ send_command:
             - mute
             - volume_up
             - volume_down
+            - balance_left
+            - balance_right
             - one
             - two
             - three

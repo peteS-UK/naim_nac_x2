@@ -2,21 +2,71 @@
   "title": "Naim NAC",
   "config": {
     "error": {
-      "data": "Enter a name for your NAC Pre-amp",
-      "select": "You must either discover or enter details manually"
+      "data": "Enter a name for your NAC preamp.",
+      "invalid_emitter": "Select an available infrared emitter.",
+      "duplicate_inputs": "Each input must have a different label."
+    },
+    "abort": {
+      "no_emitters": "No infrared emitters are available. Set up an infrared emitter first."
     },
     "step": {
       "user": {
         "data": {
-          "name": "Name of the Naim NAC Pre-amp",
-          "remote_entity": "Select the Remote entity",
-          "remote_type": "What type of IR blaster",
+          "name": "Name of the Naim NAC preamp",
+          "infrared_entity_id": "Infrared emitter",
           "input1": "Input 1",
           "input2": "Input 2",
           "input3": "Input 3",
           "input4": "Input 4",
           "input5": "Input 5",
           "input6": "Input 6"
+        }
+      }
+    }
+  },
+  "options": {
+    "error": {
+      "invalid_emitter": "Select an available infrared emitter.",
+      "duplicate_inputs": "Each input must have a different label."
+    },
+    "abort": {
+      "no_emitters": "No infrared emitters are available. Set up an infrared emitter first.",
+      "migration_required": "Complete the infrared emitter migration repair before changing settings."
+    },
+    "step": {
+      "init": {
+        "data": {
+          "infrared_entity_id": "Infrared emitter",
+          "input1": "Input 1",
+          "input2": "Input 2",
+          "input3": "Input 3",
+          "input4": "Input 4",
+          "input5": "Input 5",
+          "input6": "Input 6"
+        }
+      }
+    }
+  },
+  "issues": {
+    "reselect_ir_emitter": {
+      "title": "Select an infrared emitter for {name}",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Select infrared emitter",
+            "description": "{name} now sends IR commands through Home Assistant's Infrared integration instead of Broadlink or Tuya remote entities. Choose an infrared emitter to use.",
+            "data": {
+              "infrared_entity_id": "Infrared emitter"
+            }
+          }
+        },
+        "error": {
+          "invalid_emitter": "Select an available infrared emitter."
+        },
+        "abort": {
+          "no_emitters": "No infrared emitters are available. Set up an infrared emitter first, then try again.",
+          "entry_not_found": "The Naim NAC config entry could not be found.",
+          "reload_failed": "The emitter was saved, but the integration could not be reloaded. Reload it manually."
         }
       }
     }
